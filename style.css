@@ -11,9 +11,9 @@
   --surface-light: #252525;
   --text: #e0e0e0;
   --text-muted: #888;
-  --bronze: #cd7f32;
-  --silver: #c0c0c0;
-  --gold: #ffd700;
+  --tier-8gb: var(--primary-3);
+  --tier-16gb: var(--primary-1);
+  --tier-32gb: var(--primary-2);
 }
 
 * {
@@ -162,7 +162,7 @@ h4 {
   gap: 1.5em;
   align-items: flex-start;
   background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
-  border: 2px solid var(--gold);
+  border: 2px solid var(--primary-2);
   border-radius: 12px;
   padding: 1.5em;
   margin-top: 1.5em;
@@ -174,7 +174,7 @@ h4 {
 }
 
 .sponsor-highlight-content h4 {
-  color: var(--gold);
+  color: var(--primary-2);
   font-size: 1.1em;
   margin-top: 0;
 }
@@ -327,15 +327,15 @@ h4 {
   flex-direction: column;
 }
 
-.podium-gold {
+.podium-32gb {
   order: 2;
 }
 
-.podium-silver {
+.podium-16gb {
   order: 1;
 }
 
-.podium-bronze {
+.podium-8gb {
   order: 3;
 }
 
@@ -346,19 +346,19 @@ h4 {
   margin-top: 0.8em;
 }
 
-.podium-gold .podium-base {
+.podium-32gb .podium-base {
   height: 50px;
-  background: linear-gradient(180deg, var(--gold) 0%, #b8860b 100%);
+  background: linear-gradient(180deg, var(--tier-32gb) 0%, #5500aa 100%);
 }
 
-.podium-silver .podium-base {
+.podium-16gb .podium-base {
   height: 30px;
-  background: linear-gradient(180deg, var(--silver) 0%, #888 100%);
+  background: linear-gradient(180deg, var(--tier-16gb) 0%, #2a4aaa 100%);
 }
 
-.podium-bronze .podium-base {
+.podium-8gb .podium-base {
   height: 15px;
-  background: linear-gradient(180deg, var(--bronze) 0%, #8b4513 100%);
+  background: linear-gradient(180deg, var(--tier-8gb) 0%, #2d6e1e 100%);
 }
 
 .package-item {
@@ -374,17 +374,17 @@ h4 {
   transform: translateY(-4px);
 }
 
-.podium-gold .package-item {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+.podium-32gb .package-item {
+  border-color: var(--tier-32gb);
+  box-shadow: 0 0 20px rgba(136, 0, 255, 0.15);
 }
 
-.podium-silver .package-item {
-  border-color: var(--silver);
+.podium-16gb .package-item {
+  border-color: var(--tier-16gb);
 }
 
-.podium-bronze .package-item {
-  border-color: var(--bronze);
+.podium-8gb .package-item {
+  border-color: var(--tier-8gb);
 }
 
 .package-header {
@@ -410,28 +410,28 @@ h4 {
   margin-top: 0.5em;
 }
 
-.package-bronze .package-header h3 {
-  color: var(--bronze);
+.package-8gb .package-header h3 {
+  color: var(--tier-8gb);
 }
 
-.package-bronze {
-  border-color: var(--bronze);
+.package-8gb {
+  border-color: var(--tier-8gb);
 }
 
-.package-silver .package-header h3 {
-  color: var(--silver);
+.package-16gb .package-header h3 {
+  color: var(--tier-16gb);
 }
 
-.package-silver {
-  border-color: var(--silver);
+.package-16gb {
+  border-color: var(--tier-16gb);
 }
 
-.package-gold .package-header h3 {
-  color: var(--gold);
+.package-32gb .package-header h3 {
+  color: var(--tier-32gb);
 }
 
-.package-gold {
-  border-color: var(--gold);
+.package-32gb {
+  border-color: var(--tier-32gb);
 }
 
 .package-features {
@@ -546,9 +546,9 @@ h4 {
     gap: 1.5em;
   }
 
-  .podium-gold,
-  .podium-silver,
-  .podium-bronze {
+  .podium-32gb,
+  .podium-16gb,
+  .podium-8gb {
     order: unset;
   }
 
