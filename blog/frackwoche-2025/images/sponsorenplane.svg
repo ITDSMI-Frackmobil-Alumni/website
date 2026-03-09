@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ITDSMI Sponsorenplane | 4m x 2m | Fuer Planendruck -->
+<!-- Farbmodus: CMYK wird vom Druckdienstleister vorausgesetzt. -->
+<!-- Bitte SVG in CMYK konvertieren (z.B. Inkscape > Datei > Druckfarben oder Illustrator CMYK-Export). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="4000mm" height="2000mm"
+  viewBox="0 0 4000 2000">
+  <title>ITDSMI Sponsorenplane 4m x 2m</title>
+  <desc>Sponsorenplane ITDSMI – Frackmobil &amp; Alumni. Masse: 4000mm x 2000mm. Bitte in CMYK drucken.</desc>
+  <defs>
+    <style>
+      text { font-family: "Courier New", monospace; fill: white; }
+    </style>
+  </defs>
+
+  <!-- Hintergrund -->
+  <rect x="0" y="0" width="4000" height="2000" fill="#1a1a2e"/>
+
+  <!-- Streifen oben -->
+  <rect x="0" y="0" width="4000" height="80" fill="#8800ff"/>
+  <!-- Streifen unten -->
+  <rect x="0" y="1920" width="4000" height="80" fill="#8800ff"/>
+  <!-- Mittelstreifen -->
+  <rect x="0" y="992" width="4000" height="16" fill="#4169e1"/>
+
+  <!-- Vereinsname -->
+  <text x="60" y="1000" font-size="52" font-weight="bold" dominant-baseline="middle">ITDSMI – Frackmobil &amp; Alumni</text>
+
+  <!-- Sponsor: Beispiel AG | Tier: 32gb | Logo: kein Pfad -->
+  <rect x="100" y="200" width="450" height="300" fill="none" stroke="#8800ff" stroke-width="3" stroke-dasharray="10,5" rx="4"/>
+  <text x="325" y="338" font-size="18" text-anchor="middle" fill="#8800ff" dominant-baseline="middle">Beispiel AG</text>
+  <text x="325" y="364" font-size="14" text-anchor="middle" fill="#aaa" dominant-baseline="middle">32GB</text>
+  <!-- Sponsor: Demo GmbH | Tier: 16gb | Logo: kein Pfad -->
+  <rect x="500" y="150" width="550" height="450" fill="none" stroke="#4169e1" stroke-width="3" stroke-dasharray="10,5" rx="4"/>
+  <text x="775" y="363" font-size="18" text-anchor="middle" fill="#4169e1" dominant-baseline="middle">Demo GmbH</text>
+  <text x="775" y="389" font-size="14" text-anchor="middle" fill="#aaa" dominant-baseline="middle">16GB</text>
+  <!-- Sponsor: Sponsor XY | Tier: 8gb | Logo: kein Pfad -->
+  <rect x="100" y="1100" width="550" height="500" fill="none" stroke="#48a830" stroke-width="3" stroke-dasharray="10,5" rx="4"/>
+  <text x="375" y="1338" font-size="18" text-anchor="middle" fill="#48a830" dominant-baseline="middle">Sponsor XY</text>
+  <text x="375" y="1364" font-size="14" text-anchor="middle" fill="#aaa" dominant-baseline="middle">8GB</text>
+
+  <!-- Grid-Referenz: 1 Einheit = 1mm, 100 Einheiten = 10cm = 1 Dezimeter -->
+</svg>
