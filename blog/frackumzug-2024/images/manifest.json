@@ -1,0 +1,13 @@
+{
+  "steps": [
+    {
+      "name": "Frackumzug 2024",
+      "dir": ".",
+      "images": [
+        "frackmobil-1.jpg",
+        "frackmobil-2.jpg",
+        "frackmobil-3.jpg"
+      ]
+    }
+  ]
+}

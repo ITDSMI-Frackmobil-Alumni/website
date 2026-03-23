@@ -1,0 +1,13 @@
+{
+  "steps": [
+    {
+      "name": "Frackumzug 2025",
+      "dir": ".",
+      "images": [
+        "Frackumzug1.jpg",
+        "Frackumzug2.jpg",
+        "Frackumzug3.jpg"
+      ]
+    }
+  ]
+}

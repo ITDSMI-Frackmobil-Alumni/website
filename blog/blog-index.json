@@ -1,9 +1,14 @@
 {
   "entries": [
     {
-      "dir": "frackwoche-2025",
-      "title": "Frackwoche 2025",
+      "dir": "frackumzug-2025",
+      "title": "Frackumzug 2025",
       "date": "Juli 2025"
+    },
+    {
+      "dir": "frackumzug-2024",
+      "title": "Frackumzug 2024",
+      "date": "Juli 2024"
     }
   ]
 }
