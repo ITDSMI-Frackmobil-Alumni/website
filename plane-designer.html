@@ -228,9 +228,9 @@
         <div class="field">
           <label>Tier</label>
           <select id="inp-tier">
-            <option value="32gb">32 GB – 400 CHF (Logo auf Website + grosses Logo auf Plane)</option>
-            <option value="16gb">16 GB – 200 CHF (Logo auf Website + kleines Logo auf Plane)</option>
-            <option value="8gb">8 GB – 100 CHF (Logo auf Website)</option>
+            <option value="32gb">32 GB – 500 CHF (Logo auf Website + grosses Logo auf Plane)</option>
+            <option value="16gb">16 GB – 250 CHF (Logo auf Website + kleines Logo auf Plane)</option>
+            <option value="8gb">8 GB – 125 CHF (Logo auf Website)</option>
           </select>
         </div>
         <button class="btn primary" style="width:100%; margin-top:0.3em" onclick="addSponsor()">+ Hinzufügen</button>
@@ -726,7 +726,7 @@ function renderSponsorList() {
       const card = document.createElement('div');
       card.className = 'sponsor-card';
       card.dataset.id = sp.id;
-      const tierInfo = { '32gb': '400 CHF · Logo Website + grosses Logo Plane', '16gb': '200 CHF · Logo Website + kleines Logo Plane', '8gb': '100 CHF · Logo Website' };
+      const tierInfo = { '32gb': '500 CHF · Logo Website + grosses Logo Plane', '16gb': '250 CHF · Logo Website + kleines Logo Plane', '8gb': '125 CHF · Logo Website' };
       card.innerHTML = `
         <span class="tier-badge tier-${sp.tier}">${sp.tier.toUpperCase()}</span>
         <div style="font-size:0.72em; color:var(--muted); margin-bottom:0.3em;">${tierInfo[sp.tier] || ''}</div>

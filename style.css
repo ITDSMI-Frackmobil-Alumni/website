@@ -368,6 +368,8 @@ h4 {
   border-radius: 12px;
   border: 2px solid #333;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .package-item:hover {
@@ -404,8 +406,33 @@ h4 {
   text-align: center;
   font-size: 1.6em;
   font-weight: bold;
-  margin-bottom: 1em;
-  color: var(--primary-3);
+  margin-top: auto;
+  padding-top: 1em;
+  color: var(--text);
+}
+
+.price-asterisk {
+  font-size: 0.5em;
+  vertical-align: super;
+  color: var(--text-muted);
+}
+
+.price-note {
+  margin-top: 1.2em;
+  font-size: 0.78em;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.price-note a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.price-note a:hover {
+  color: var(--text);
 }
 
 .package-badge {
