@@ -400,6 +400,14 @@ h4 {
   font-size: 1.3em;
 }
 
+.package-price {
+  text-align: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  margin-bottom: 1em;
+  color: var(--primary-3);
+}
+
 .package-badge {
   display: inline-block;
   font-size: 0.7em;

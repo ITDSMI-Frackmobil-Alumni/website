@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITDSMI – Sponsorenplane Designer</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #222;
+      --border: #333;
+      --text: #e0e0e0;
+      --muted: #888;
+      --primary: #4169e1;
+      --purple: #8800ff;
+      --green: #48a830;
+      --red: #e14141;
+      --tier-8gb: #48a830;
+      --tier-16gb: #4169e1;
+      --tier-32gb: #8800ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: "Courier New", monospace; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Top Bar */
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0.6em 1.2em; display: flex; align-items: center; gap: 1.2em; flex-shrink: 0;
+    }
+    .topbar h1 { font-size: 0.95em; color: var(--primary); white-space: nowrap; }
+    .topbar .dim { color: var(--muted); font-size: 0.8em; }
+    .topbar .spacer { flex: 1; }
+    .btn {
+      padding: 0.4em 0.9em; border-radius: 5px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); cursor: pointer; font-family: inherit;
+      font-size: 0.82em; transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: #2a2a2a; border-color: var(--primary); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+    .btn.primary:hover { background: #3055cc; }
+    .btn.danger { background: var(--red); border-color: var(--red); color: white; }
+
+    /* Layout */
+    .workspace {
+      display: flex; flex: 1; overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 320px; min-width: 320px; background: var(--surface);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-tabs {
+      display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 0.6em; background: none; border: none; border-bottom: 2px solid transparent;
+      color: var(--muted); cursor: pointer; font-family: inherit; font-size: 0.82em;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-pane { display: none; flex: 1; overflow-y: auto; padding: 0.8em; flex-direction: column; gap: 0.6em; }
+    .tab-pane.active { display: flex; }
+
+    /* Sponsor List */
+    .sponsor-card {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.7em; position: relative; transition: border-color 0.15s;
+    }
+    .sponsor-card:hover { border-color: #555; }
+    .sponsor-card .tier-badge {
+      display: inline-block; font-size: 0.7em; padding: 0.15em 0.5em;
+      border-radius: 3px; margin-bottom: 0.4em; font-weight: bold;
+    }
+    .tier-8gb  { background: rgba(72,168,48,0.2); color: var(--tier-8gb); border: 1px solid var(--tier-8gb); }
+    .tier-16gb { background: rgba(65,105,225,0.2); color: var(--tier-16gb); border: 1px solid var(--tier-16gb); }
+    .tier-32gb { background: rgba(136,0,255,0.2); color: var(--tier-32gb); border: 1px solid var(--tier-32gb); }
+    .sponsor-card .sname { font-size: 0.88em; font-weight: bold; color: var(--text); margin-bottom: 0.2em; }
+    .sponsor-card .spath { font-size: 0.72em; color: var(--muted); word-break: break-all; }
+    .card-actions { display: flex; gap: 0.4em; margin-top: 0.5em; }
+    .card-actions button { font-size: 0.72em; padding: 0.2em 0.5em; }
+    .remove-btn { color: var(--red) !important; border-color: var(--red) !important; }
+
+    /* Add form */
+    .add-form { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em; flex-shrink: 0; }
+    .add-form h4 { font-size: 0.82em; color: var(--muted); margin-bottom: 0.6em; text-transform: uppercase; letter-spacing: 0.05em; }
+    .field { margin-bottom: 0.5em; }
+    .field label { display: block; font-size: 0.75em; color: var(--muted); margin-bottom: 0.2em; }
+    .field input, .field select {
+      width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--text); padding: 0.35em 0.5em; font-family: inherit; font-size: 0.82em;
+      transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+
+    /* JSON tab */
+    .json-area {
+      flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+      color: #a8c8ff; font-family: "Courier New", monospace; font-size: 0.78em; padding: 0.7em;
+      resize: none; outline: none; min-height: 200px;
+    }
+    .json-area:focus { border-color: var(--primary); }
+    .json-status { font-size: 0.75em; padding: 0.3em 0; }
+    .json-status.ok { color: var(--green); }
+    .json-status.err { color: var(--red); }
+
+    /* Settings tab */
+    .settings-section { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.8em; }
+    .settings-section h4 { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6em; }
+    .color-row { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.4em; }
+    .color-row label { font-size: 0.8em; flex: 1; }
+    .color-row input[type=color] { width: 36px; height: 24px; border: none; border-radius: 3px; cursor: pointer; background: none; }
+    .color-row input[type=text] { flex: 2; }
+
+    /* Canvas area */
+    .canvas-area {
+      flex: 1; overflow: auto; background: #fff;
+      display: flex; align-items: flex-start; justify-content: center; padding: 2em;
+    }
+    .canvas-wrapper {
+      position: relative;
+    }
+    /* The plane canvas – scaled to fit screen, real ratio 4:2 = 2:1 */
+    #plane-canvas {
+      display: block; border: 2px solid var(--border);
+      background: #fff; cursor: crosshair;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    }
+
+    /* Overlay logo boxes */
+    .logo-overlay {
+      position: absolute; cursor: move; border: 2px dashed transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.1s;
+      user-select: none;
+    }
+    .logo-overlay:hover { border-color: rgba(65,105,225,0.8); }
+    .logo-overlay.selected { border-color: var(--primary) !important; }
+    .logo-overlay img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
+    .logo-overlay .placeholder {
+      font-size: 0.7em; color: #999; text-align: center; padding: 4px;
+      pointer-events: none; word-break: break-all;
+    }
+    .logo-overlay .resize-handle {
+      position: absolute; right: -5px; bottom: -5px;
+      width: 10px; height: 10px; background: var(--primary);
+      border-radius: 2px; cursor: se-resize;
+    }
+    .logo-overlay .tier-indicator {
+      position: absolute; top: -18px; left: 0;
+      font-size: 0.65em; white-space: nowrap;
+      background: var(--surface); padding: 1px 4px; border-radius: 2px;
+      pointer-events: none;
+    }
+
+    /* Grid overlay toggle */
+    .grid-toggle { font-size: 0.8em; }
+
+    /* Status bar */
+    .statusbar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 0.3em 1em; font-size: 0.75em; color: var(--muted);
+      display: flex; gap: 2em; flex-shrink: 0;
+    }
+    .statusbar span b { color: var(--text); }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 1000; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 1.5em; min-width: 360px; max-width: 500px;
+    }
+    .modal h3 { margin-bottom: 1em; font-size: 1em; color: var(--primary); }
+    .modal .actions { display: flex; gap: 0.5em; justify-content: flex-end; margin-top: 1em; }
+
+    /* Logo load error fallback */
+    .fallback-box {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.65em; color: #aaa; text-align: center; border: 1px dashed #555;
+      border-radius: 4px; padding: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <h1>ITDSMI Sponsorenplane Designer</h1>
+  <span class="dim">4 m × 2 m</span>
+  <div class="spacer"></div>
+  <label style="font-size:0.8em; color:var(--muted); display:flex; align-items:center; gap:0.4em;">
+    <input type="checkbox" id="gridToggle" checked> Grid
+  </label>
+  <label style="font-size:0.8em; color:var(--muted); display:flex; align-items:center; gap:0.4em;">
+    <input type="checkbox" id="snapToggle" checked> Snap
+  </label>
+  <button class="btn" onclick="exportSVG()">SVG Export</button>
+  <button class="btn primary" onclick="exportPDF()">PDF Export</button>
+</div>
+
+<div class="workspace">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" onclick="switchTab('sponsors', this)">Sponsoren</button>
+      <button class="tab-btn" onclick="switchTab('json', this)">JSON</button>
+      <button class="tab-btn" onclick="switchTab('settings', this)">Design</button>
+    </div>
+
+    <!-- Tab: Sponsoren -->
+    <div class="tab-pane active" id="tab-sponsors">
+      <div class="add-form">
+        <h4>Sponsor hinzufügen</h4>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="inp-name" placeholder="z.B. Acme AG">
+        </div>
+        <div class="field">
+          <label>Logo-Pfad</label>
+          <input type="text" id="inp-path" placeholder="logos/acme.svg oder https://...">
+        </div>
+        <div class="field">
+          <label>Tier</label>
+          <select id="inp-tier">
+            <option value="32gb">32 GB – 400 CHF (Logo auf Website + grosses Logo auf Plane)</option>
+            <option value="16gb">16 GB – 200 CHF (Logo auf Website + kleines Logo auf Plane)</option>
+            <option value="8gb">8 GB – 100 CHF (Logo auf Website)</option>
+          </select>
+        </div>
+        <button class="btn primary" style="width:100%; margin-top:0.3em" onclick="addSponsor()">+ Hinzufügen</button>
+      </div>
+      <div id="sponsor-list" style="display:flex; flex-direction:column; gap:0.5em;"></div>
+    </div>
+
+    <!-- Tab: JSON -->
+    <div class="tab-pane" id="tab-json" style="gap:0.4em;">
+      <div style="font-size:0.78em; color:var(--muted); flex-shrink:0;">
+        JSON direkt bearbeiten. Alle Änderungen werden live übernommen.
+      </div>
+      <textarea class="json-area" id="json-editor" spellcheck="false"></textarea>
+      <div class="json-status ok" id="json-status">JSON gültig</div>
+      <div style="display:flex; gap:0.4em; flex-shrink:0;">
+        <button class="btn" style="flex:1" onclick="applyJSON()">Übernehmen</button>
+        <button class="btn" style="flex:1" onclick="refreshJSON()">Aktualisieren</button>
+      </div>
+      <div style="font-size:0.75em; color:var(--muted); flex-shrink:0;">
+        Tipp: JSON kann als Datei gespeichert und beim nächsten Mal via "Laden" wieder importiert werden.
+      </div>
+      <div style="display:flex; gap:0.4em; flex-shrink:0;">
+        <button class="btn" style="flex:1" onclick="downloadJSON()">JSON speichern</button>
+        <label class="btn" style="flex:1; text-align:center; cursor:pointer;">
+          JSON laden<input type="file" accept=".json" style="display:none" onchange="loadJSON(event)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Tab: Settings / Design -->
+    <div class="tab-pane" id="tab-settings">
+      <div class="settings-section">
+        <h4>Hintergrundfarbe</h4>
+        <div class="color-row">
+          <label>Plane Hintergrund</label>
+          <input type="color" id="cfg-bg" value="#1a1a2e" oninput="updateSettings()">
+          <input type="text" id="cfg-bg-hex" value="#1a1a2e" oninput="syncColorFromText('cfg-bg','cfg-bg-hex')">
+        </div>
+        <div class="color-row">
+          <label>Streifen oben/unten</label>
+          <input type="color" id="cfg-stripe" value="#8800ff" oninput="updateSettings()">
+          <input type="text" id="cfg-stripe-hex" value="#8800ff" oninput="syncColorFromText('cfg-stripe','cfg-stripe-hex')">
+        </div>
+        <div class="color-row">
+          <label>Mittelstreifen</label>
+          <input type="color" id="cfg-stripe2" value="#4169e1" oninput="updateSettings()">
+          <input type="text" id="cfg-stripe2-hex" value="#4169e1" oninput="syncColorFromText('cfg-stripe2','cfg-stripe2-hex')">
+        </div>
+      </div>
+      <div class="settings-section">
+        <h4>Vereinslogo</h4>
+        <div class="field">
+          <label>Pfad zum Vereinslogo</label>
+          <input type="text" id="cfg-verein-logo" value="logo-dunkel.jpg" oninput="updateSettings()">
+        </div>
+        <div class="field">
+          <label>Vereinsname (Text auf Plane)</label>
+          <input type="text" id="cfg-verein-name" value="ITDSMI – Frackmobil & Alumni" oninput="updateSettings()">
+        </div>
+      </div>
+      <div class="settings-section">
+        <h4>Tier-Gewichtung (Flächenanteil)</h4>
+        <div class="color-row">
+          <label>32 GB – Gewicht</label>
+          <input type="number" id="cfg-w32" value="3" min="1" max="10" style="flex:2" oninput="updateSettings()">
+        </div>
+        <div class="color-row">
+          <label>16 GB – Gewicht</label>
+          <input type="number" id="cfg-w16" value="2" min="1" max="10" style="flex:2" oninput="updateSettings()">
+        </div>
+        <div class="color-row">
+          <label>8 GB – Gewicht</label>
+          <input type="number" id="cfg-w8"  value="1" min="1" max="10" style="flex:2" oninput="updateSettings()">
+        </div>
+        <div style="font-size:0.72em; color:var(--muted); margin-top:0.5em;" id="weight-hint"></div>
+      </div>
+      <div class="settings-section">
+        <h4>Logo-Seitenverhältnis</h4>
+        <div class="color-row">
+          <label>Breite : Höhe</label>
+          <input type="number" id="cfg-aspect" value="3.0" min="0.5" max="10" step="0.1" style="flex:2" oninput="updateSettings()">
+          <span style="font-size:0.8em; color:var(--muted);">: 1</span>
+        </div>
+        <div class="color-row">
+          <label>Abstand / Rand (mm)</label>
+          <input type="number" id="cfg-padding" value="60" min="10" max="300" style="flex:2" oninput="updateSettings()">
+        </div>
+        <div style="font-size:0.72em; color:var(--muted); margin-top:0.5em;" id="size-preview"></div>
+      </div>
+      <button class="btn primary" onclick="autoLayout()" style="flex-shrink:0;">Auto-Layout</button>
+      <div style="font-size:0.75em; color:var(--muted);">
+        Ordnet alle Logos neu an. Grössen werden aus Planenfläche, Tier-Gewichtung und Anzahl Sponsoren berechnet.
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas Area -->
+  <div class="canvas-area" id="canvas-area">
+    <div class="canvas-wrapper" id="canvas-wrapper">
+      <canvas id="plane-canvas"></canvas>
+      <!-- Logo overlays injected here by JS -->
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span>Plane: <b>4 m × 2 m</b></span>
+  <span>Auflösung: <b>4000 × 2000 px</b> (1 px/mm)</span>
+  <span id="status-cursor">Cursor: –</span>
+  <span id="status-selected">Ausgewählt: –</span>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <h3>Export</h3>
+    <div id="export-msg" style="font-size:0.85em; color:var(--muted); line-height:1.6;"></div>
+    <div class="actions">
+      <button class="btn" onclick="closeModal()">Schliessen</button>
+      <button class="btn primary" id="export-dl-btn">Download</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const CANVAS_W = 4000; // px = 4000mm = 4m
+const CANVAS_H = 2000; // px = 2000mm = 2m
+
+let sponsors = []; // { id, name, logo, tier, x, y, w, h }
+let settings = {
+  bg: '#1a1a2e',
+  stripe: '#8800ff',
+  stripe2: '#4169e1',
+  vereinLogo: 'logo-dunkel.jpg',
+  vereinName: 'ITDSMI – Frackmobil & Alumni',
+  // Tier-Gewichtungen: relativer Anteil an der nutzbaren Planenfläche (Höhe)
+  // z.B. 3:2:1 bedeutet 32GB bekommt 50%, 16GB 33%, 8GB 17%
+  tierWeight32: 3,
+  tierWeight16: 2,
+  tierWeight8: 1,
+  // Logo-Seitenverhältnis (Breite:Höhe) – typisch 3:1 für Firmenlogos
+  logoAspect: 3.0,
+  // Padding zwischen Logos und zu Planen-Rand (in mm)
+  logoPadding: 60,
+};
+
+let scale = 1; // canvas display scale
+let gridOn = true;
+let snapOn = true;
+const GRID = 50; // grid spacing in canvas px
+
+let selectedId = null;
+let dragState = null; // { id, startX, startY, origX, origY }
+let resizeState = null;
+
+// Image cache: id -> HTMLImageElement
+const imgCache = {};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  computeScale();
+  window.addEventListener('resize', () => { computeScale(); renderCanvas(); renderOverlays(); });
+  document.getElementById('gridToggle').addEventListener('change', e => { gridOn = e.target.checked; renderCanvas(); });
+  document.getElementById('snapToggle').addEventListener('change', e => { snapOn = e.target.checked; });
+
+  // Canvas mouse for cursor tracking
+  document.getElementById('plane-canvas').addEventListener('mousemove', e => {
+    const cp = canvasPoint(e);
+    document.getElementById('status-cursor').textContent = `Cursor: ${Math.round(cp.x)}mm × ${Math.round(cp.y)}mm`;
+  });
+
+  // Click on canvas background deselects
+  document.getElementById('plane-canvas').addEventListener('click', () => { selectSponsor(null); });
+
+  // Demo-Daten: 3× 32 GB, 1× 16 GB, 2× 8 GB
+  const demoLogo = 'https://www.init7.net/static/img/logo/Init7_logo.svg?h=58554ace';
+  sponsors = [
+    { id: uid(), name: 'Init7',       logo: demoLogo, tier: '32gb' },
+    { id: uid(), name: 'Sponsor B',   logo: demoLogo, tier: '32gb' },
+    { id: uid(), name: 'Sponsor C',   logo: demoLogo, tier: '32gb' },
+    { id: uid(), name: 'Sponsor D',   logo: demoLogo, tier: '16gb' },
+    { id: uid(), name: 'Sponsor E',   logo: demoLogo, tier: '8gb'  },
+    { id: uid(), name: 'Sponsor F',   logo: demoLogo, tier: '8gb'  },
+  ];
+  calcAllSizes();
+
+  renderCanvas();
+  renderOverlays();
+  renderSponsorList();
+  refreshJSON();
+  updateSizePreview();
+});
+
+// ============================================================
+// SCALE & LAYOUT
+// ============================================================
+function computeScale() {
+  const area = document.getElementById('canvas-area');
+  const availW = area.clientWidth - 80;
+  const availH = area.clientHeight - 80;
+  const sx = availW / CANVAS_W;
+  const sy = availH / CANVAS_H;
+  scale = Math.min(sx, sy, 1);
+  const canvas = document.getElementById('plane-canvas');
+  canvas.width = CANVAS_W;
+  canvas.height = CANVAS_H;
+  canvas.style.width = (CANVAS_W * scale) + 'px';
+  canvas.style.height = (CANVAS_H * scale) + 'px';
+}
+
+function canvasPoint(e) {
+  const canvas = document.getElementById('plane-canvas');
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) / scale,
+    y: (e.clientY - rect.top) / scale,
+  };
+}
+
+// ============================================================
+// RENDER CANVAS (background + grid)
+// ============================================================
+function renderCanvas() {
+  const canvas = document.getElementById('plane-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = CANVAS_W, H = CANVAS_H;
+
+  // Background
+  ctx.fillStyle = settings.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Top stripe
+  ctx.fillStyle = settings.stripe;
+  ctx.fillRect(0, 0, W, 80);
+
+  // Bottom stripe
+  ctx.fillRect(0, H - 80, W, 80);
+
+  // Center stripe (thin)
+  ctx.fillStyle = settings.stripe2;
+  ctx.fillRect(0, H/2 - 8, W, 16);
+
+  // Vereinsname text links
+  ctx.font = 'bold 52px Courier New, monospace';
+  ctx.fillStyle = 'white';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(settings.vereinName, 60, H/2);
+
+  // Vereinslogo (top-left corner)
+  if (imgCache['__verein__']) {
+    const img = imgCache['__verein__'];
+    const ih = 64;
+    const iw = img.width / img.height * ih;
+    ctx.drawImage(img, 20, 8, iw, ih);
+  } else {
+    loadImage(settings.vereinLogo, '__verein__', () => renderCanvas());
+  }
+
+  // Grid
+  if (gridOn) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += GRID) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += GRID) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    // Ruler marks at 100 (10cm) steps
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    for (let x = 0; x <= W; x += 100) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += 100) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  }
+
+  // Dimension labels
+  ctx.font = '22px Courier New';
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('4 m', W/2 - 20, H - 2);
+  ctx.save();
+  ctx.translate(W - 4, H/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('2 m', -20, 0);
+  ctx.restore();
+}
+
+// ============================================================
+// OVERLAYS (draggable logo boxes)
+// ============================================================
+function renderOverlays() {
+  // Remove old overlays
+  document.querySelectorAll('.logo-overlay').forEach(el => el.remove());
+
+  const wrapper = document.getElementById('canvas-wrapper');
+  const canvas = document.getElementById('plane-canvas');
+  const canvasOffX = canvas.offsetLeft;
+  const canvasOffY = canvas.offsetTop;
+
+  sponsors.forEach(sp => {
+    const div = document.createElement('div');
+    div.className = 'logo-overlay' + (sp.id === selectedId ? ' selected' : '');
+    div.dataset.id = sp.id;
+
+    // Position/size in screen px
+    div.style.left = (canvasOffX + sp.x * scale) + 'px';
+    div.style.top  = (canvasOffY + sp.y * scale) + 'px';
+    div.style.width  = (sp.w * scale) + 'px';
+    div.style.height = (sp.h * scale) + 'px';
+
+    // Tier indicator
+    const ti = document.createElement('div');
+    ti.className = 'tier-indicator';
+    ti.innerHTML = `<span class="tier-badge tier-${sp.tier}">${sp.tier.toUpperCase()}</span> ${sp.name}`;
+    div.appendChild(ti);
+
+    // Logo image or placeholder
+    // Logos werden direkt als <img> gerendert – kein Canvas/CORS-Problem
+    if (sp.logo) {
+      const img = document.createElement('img');
+      img.src = sp.logo;
+      img.draggable = false;
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.objectFit = 'contain';
+      img.onerror = () => {
+        img.remove();
+        const ph = document.createElement('div');
+        ph.className = 'placeholder';
+        ph.textContent = '⚠ ' + sp.logo;
+        div.appendChild(ph);
+      };
+      div.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.textContent = sp.name + '\n(kein Logo)';
+      div.appendChild(ph);
+    }
+
+    // Resize handle
+    const rh = document.createElement('div');
+    rh.className = 'resize-handle';
+    rh.addEventListener('mousedown', e => startResize(e, sp.id));
+    div.appendChild(rh);
+
+    // Drag
+    div.addEventListener('mousedown', e => {
+      if (e.target.classList.contains('resize-handle')) return;
+      e.stopPropagation();
+      selectSponsor(sp.id);
+      startDrag(e, sp.id);
+    });
+
+    wrapper.appendChild(div);
+  });
+}
+
+function startDrag(e, id) {
+  const sp = sponsors.find(s => s.id === id);
+  dragState = { id, startX: e.clientX, startY: e.clientY, origX: sp.x, origY: sp.y };
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+}
+function onDrag(e) {
+  if (!dragState) return;
+  const sp = sponsors.find(s => s.id === dragState.id);
+  let nx = dragState.origX + (e.clientX - dragState.startX) / scale;
+  let ny = dragState.origY + (e.clientY - dragState.startY) / scale;
+  if (snapOn) { nx = Math.round(nx / GRID) * GRID; ny = Math.round(ny / GRID) * GRID; }
+  nx = Math.max(0, Math.min(CANVAS_W - sp.w, nx));
+  ny = Math.max(0, Math.min(CANVAS_H - sp.h, ny));
+  sp.x = nx; sp.y = ny;
+  // Move overlay directly for performance
+  const overlay = document.querySelector(`.logo-overlay[data-id="${dragState.id}"]`);
+  if (overlay) {
+    const canvas = document.getElementById('plane-canvas');
+    overlay.style.left = (canvas.offsetLeft + sp.x * scale) + 'px';
+    overlay.style.top  = (canvas.offsetTop  + sp.y * scale) + 'px';
+  }
+  document.getElementById('status-selected').textContent = `Ausgewählt: ${sp.name} @ ${Math.round(sp.x)}mm, ${Math.round(sp.y)}mm`;
+}
+function stopDrag() {
+  dragState = null;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+  renderCanvas();
+  refreshJSON();
+}
+
+function startResize(e, id) {
+  e.stopPropagation();
+  const sp = sponsors.find(s => s.id === id);
+  resizeState = { id, startX: e.clientX, startY: e.clientY, origW: sp.w, origH: sp.h };
+  document.addEventListener('mousemove', onResize);
+  document.addEventListener('mouseup', stopResize);
+}
+function onResize(e) {
+  if (!resizeState) return;
+  const sp = sponsors.find(s => s.id === resizeState.id);
+  let nw = resizeState.origW + (e.clientX - resizeState.startX) / scale;
+  let nh = resizeState.origH + (e.clientY - resizeState.startY) / scale;
+  if (snapOn) { nw = Math.round(nw / GRID) * GRID; nh = Math.round(nh / GRID) * GRID; }
+  sp.w = Math.max(50, nw);
+  sp.h = Math.max(30, nh);
+  const overlay = document.querySelector(`.logo-overlay[data-id="${resizeState.id}"]`);
+  if (overlay) {
+    overlay.style.width  = (sp.w * scale) + 'px';
+    overlay.style.height = (sp.h * scale) + 'px';
+  }
+}
+function stopResize() {
+  resizeState = null;
+  document.removeEventListener('mousemove', onResize);
+  document.removeEventListener('mouseup', stopResize);
+  renderCanvas();
+  renderOverlays();
+  refreshJSON();
+}
+
+// ============================================================
+// SPONSOR MANAGEMENT
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function addSponsor() {
+  const name = document.getElementById('inp-name').value.trim();
+  const logo = document.getElementById('inp-path').value.trim();
+  const tier = document.getElementById('inp-tier').value;
+  if (!name) { alert('Bitte einen Namen eingeben.'); return; }
+  // Grösse und Position werden durch calcAllSizes() + autoLayout() bestimmt
+  const sp = { id: uid(), name, logo, tier };
+  sponsors.push(sp);
+  calcAllSizes(); // berechnet alle Grössen neu (inkl. neuer Sponsor)
+  autoLayout();   // ordnet alle neu an (ruft renderOverlays() auf)
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-path').value = '';
+  renderSponsorList(); refreshJSON();
+}
+
+function removeSponsor(id) {
+  sponsors = sponsors.filter(s => s.id !== id);
+  if (selectedId === id) selectSponsor(null);
+  calcAllSizes();
+  autoLayout();
+  renderSponsorList(); refreshJSON();
+}
+
+function selectSponsor(id) {
+  selectedId = id;
+  document.querySelectorAll('.logo-overlay').forEach(el => {
+    el.classList.toggle('selected', el.dataset.id === id);
+  });
+  document.querySelectorAll('.sponsor-card').forEach(el => {
+    el.style.borderColor = el.dataset.id === id ? 'var(--primary)' : '';
+  });
+  if (id) {
+    const sp = sponsors.find(s => s.id === id);
+    if (sp) document.getElementById('status-selected').textContent = `Ausgewählt: ${sp.name} (${sp.tier.toUpperCase()}) @ ${Math.round(sp.x)}mm, ${Math.round(sp.y)}mm`;
+  } else {
+    document.getElementById('status-selected').textContent = 'Ausgewählt: –';
+  }
+}
+
+function focusSponsor(id) {
+  selectSponsor(id);
+  const overlay = document.querySelector(`.logo-overlay[data-id="${id}"]`);
+  if (overlay) overlay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderSponsorList() {
+  const list = document.getElementById('sponsor-list');
+  list.innerHTML = '';
+  const byTier = { '32gb': [], '16gb': [], '8gb': [] };
+  sponsors.forEach(sp => { (byTier[sp.tier] || (byTier[sp.tier] = [])).push(sp); });
+
+  ['32gb','16gb','8gb'].forEach(tier => {
+    if (!byTier[tier] || byTier[tier].length === 0) return;
+    const header = document.createElement('div');
+    header.style = 'font-size:0.75em; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; padding:0.3em 0;';
+    header.textContent = `── ${tier.toUpperCase()} (${byTier[tier].length}) ──`;
+    list.appendChild(header);
+
+    byTier[tier].forEach(sp => {
+      const card = document.createElement('div');
+      card.className = 'sponsor-card';
+      card.dataset.id = sp.id;
+      const tierInfo = { '32gb': '400 CHF · Logo Website + grosses Logo Plane', '16gb': '200 CHF · Logo Website + kleines Logo Plane', '8gb': '100 CHF · Logo Website' };
+      card.innerHTML = `
+        <span class="tier-badge tier-${sp.tier}">${sp.tier.toUpperCase()}</span>
+        <div style="font-size:0.72em; color:var(--muted); margin-bottom:0.3em;">${tierInfo[sp.tier] || ''}</div>
+        <div class="sname">${sp.name}</div>
+        <div class="spath">${sp.logo || '(kein Logo-Pfad)'}</div>
+        <div class="card-actions">
+          <button class="btn" onclick="focusSponsor('${sp.id}')">Fokus</button>
+          <button class="btn remove-btn" onclick="removeSponsor('${sp.id}')">Entfernen</button>
+        </div>`;
+      list.appendChild(card);
+    });
+  });
+  if (sponsors.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted); font-size:0.8em; text-align:center; padding:1em;">Noch keine Sponsoren. Oben hinzufügen.</div>';
+  }
+}
+
+// ============================================================
+// JSON TAB
+// ============================================================
+function refreshJSON() {
+  const data = { settings, sponsors: sponsors.map(sp => ({
+    id: sp.id, name: sp.name, logo: sp.logo, tier: sp.tier,
+    x: Math.round(sp.x), y: Math.round(sp.y), w: Math.round(sp.w), h: Math.round(sp.h),
+  }))};
+  document.getElementById('json-editor').value = JSON.stringify(data, null, 2);
+  document.getElementById('json-status').textContent = 'JSON gültig';
+  document.getElementById('json-status').className = 'json-status ok';
+}
+
+function applyJSON() {
+  try {
+    const data = JSON.parse(document.getElementById('json-editor').value);
+    if (data.settings) Object.assign(settings, data.settings);
+    if (Array.isArray(data.sponsors)) sponsors = data.sponsors;
+    document.getElementById('json-status').textContent = 'JSON übernommen ✓';
+    document.getElementById('json-status').className = 'json-status ok';
+    syncSettingsUI();
+    // Vereinslogo-Cache leeren (wird beim nächsten renderCanvas() neu geladen)
+    delete imgCache['__verein__'];
+    calcAllSizes();
+    renderCanvas(); renderOverlays(); renderSponsorList(); updateSizePreview();
+  } catch(e) {
+    document.getElementById('json-status').textContent = 'Fehler: ' + e.message;
+    document.getElementById('json-status').className = 'json-status err';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('json-editor').addEventListener('input', () => {
+    try {
+      JSON.parse(document.getElementById('json-editor').value);
+      document.getElementById('json-status').textContent = 'JSON gültig';
+      document.getElementById('json-status').className = 'json-status ok';
+    } catch(e) {
+      document.getElementById('json-status').textContent = 'Syntaxfehler: ' + e.message;
+      document.getElementById('json-status').className = 'json-status err';
+    }
+  });
+});
+
+function downloadJSON() {
+  const data = { settings, sponsors: sponsors.map(sp => ({
+    id: sp.id, name: sp.name, logo: sp.logo, tier: sp.tier,
+    x: Math.round(sp.x), y: Math.round(sp.y), w: Math.round(sp.w), h: Math.round(sp.h),
+  }))};
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'sponsorenplane.json'; a.click();
+}
+
+function loadJSON(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('json-editor').value = e.target.result;
+    applyJSON();
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
+// SETTINGS TAB
+// ============================================================
+function syncSettingsUI() {
+  document.getElementById('cfg-bg').value = settings.bg;
+  document.getElementById('cfg-bg-hex').value = settings.bg;
+  document.getElementById('cfg-stripe').value = settings.stripe;
+  document.getElementById('cfg-stripe-hex').value = settings.stripe;
+  document.getElementById('cfg-stripe2').value = settings.stripe2;
+  document.getElementById('cfg-stripe2-hex').value = settings.stripe2;
+  document.getElementById('cfg-verein-logo').value = settings.vereinLogo;
+  document.getElementById('cfg-verein-name').value = settings.vereinName;
+  document.getElementById('cfg-w32').value = settings.tierWeight32 || 3;
+  document.getElementById('cfg-w16').value = settings.tierWeight16 || 2;
+  document.getElementById('cfg-w8').value  = settings.tierWeight8  || 1;
+  document.getElementById('cfg-aspect').value  = settings.logoAspect  || 3.0;
+  document.getElementById('cfg-padding').value = settings.logoPadding || 60;
+  updateSizePreview();
+}
+
+function syncColorFromText(colorId, textId) {
+  const val = document.getElementById(textId).value;
+  if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+    document.getElementById(colorId).value = val;
+    updateSettings();
+  }
+}
+
+function updateSettings() {
+  settings.bg = document.getElementById('cfg-bg').value;
+  document.getElementById('cfg-bg-hex').value = settings.bg;
+  settings.stripe = document.getElementById('cfg-stripe').value;
+  document.getElementById('cfg-stripe-hex').value = settings.stripe;
+  settings.stripe2 = document.getElementById('cfg-stripe2').value;
+  document.getElementById('cfg-stripe2-hex').value = settings.stripe2;
+  settings.vereinLogo = document.getElementById('cfg-verein-logo').value;
+  settings.vereinName = document.getElementById('cfg-verein-name').value;
+  settings.tierWeight32 = parseFloat(document.getElementById('cfg-w32').value)  || 3;
+  settings.tierWeight16 = parseFloat(document.getElementById('cfg-w16').value)  || 2;
+  settings.tierWeight8  = parseFloat(document.getElementById('cfg-w8').value)   || 1;
+  settings.logoAspect   = parseFloat(document.getElementById('cfg-aspect').value)  || 3.0;
+  settings.logoPadding  = parseInt(document.getElementById('cfg-padding').value) || 60;
+  delete imgCache['__verein__'];
+  calcAllSizes();
+  autoLayout();
+  updateSizePreview();
+  refreshJSON();
+}
+
+function updateSizePreview() {
+  const hint = document.getElementById('weight-hint');
+  const preview = document.getElementById('size-preview');
+  if (!hint || !preview) return;
+
+  const w32 = settings.tierWeight32 || 3;
+  const w16 = settings.tierWeight16 || 2;
+  const w8  = settings.tierWeight8  || 1;
+  const total = w32 + w16 + w8;
+  hint.textContent =
+    `32 GB: ${Math.round(w32/total*100)}% | ` +
+    `16 GB: ${Math.round(w16/total*100)}% | ` +
+    `8 GB: ${Math.round(w8/total*100)}% der Fläche`;
+
+  // Zeige berechnete Grössen pro Tier
+  const lines = ['32gb','16gb','8gb'].map(tier => {
+    const l = calcTierLayout(tier);
+    const n = sponsors.filter(s => s.tier === tier).length;
+    const rowInfo = l.rows > 1 ? `, ${l.rows} Reihen` : '';
+    return `${tier.toUpperCase()}: ${Math.round(l.w)}×${Math.round(l.h)} mm — ${n} Sponsor${n!==1?'en':''}${rowInfo}`;
+  });
+  preview.innerHTML = lines.join('<br>');
+}
+
+// ============================================================
+// DYNAMIC SIZE CALCULATION
+// Berechnet Logo-Grössen deterministisch aus Planenfläche,
+// Tier-Gewichtungen und Anzahl Sponsoren pro Tier.
+// ============================================================
+
+/**
+ * Berechnet Zone (Y-Position, Höhe) für einen Tier.
+ * Unabhängig von Anzahl Sponsoren – nur Planenfläche + Gewichtungen.
+ */
+function calcTierZone(tier) {
+  const pad = settings.logoPadding;
+  const gap = pad;
+  const stripeH = 80;
+  const numTiers = 3;
+  // Subtract 2 inter-zone gaps so all zones fit exactly within the canvas
+  const usableH = CANVAS_H - 2 * stripeH - 2 * pad - (numTiers - 1) * gap;
+
+  const w32 = settings.tierWeight32 || 3;
+  const w16 = settings.tierWeight16 || 2;
+  const w8  = settings.tierWeight8  || 1;
+  const totalW = w32 + w16 + w8;
+  const weights = { '32gb': w32, '16gb': w16, '8gb': w8 };
+
+  const zoneH = Math.round(usableH * weights[tier] / totalW);
+  let yStart = stripeH + pad;
+  if (tier === '16gb') yStart += Math.round(usableH * w32 / totalW) + gap;
+  if (tier === '8gb')  yStart += Math.round(usableH * w32 / totalW) + gap
+                               + Math.round(usableH * w16 / totalW) + gap;
+  return { zoneH, zoneY: yStart };
+}
+
+/**
+ * Berechnet Logo-Grösse für einen Tier.
+ *
+ * Algorithmus:
+ * 1. Finde die optimale Anzahl Spalten (perRow), sodass die resultierenden
+ *    Logos möglichst gross sind — d.h. Fläche pro Logo maximiert.
+ * 2. Für jede Kandidaten-Spaltenanzahl (1..n): berechne Logobreite aus
+ *    Zonenbreite, Logohöhe aus Zonenhöhe/rows, nimm den Kandidaten mit
+ *    der grössten Logofläche.
+ *
+ * So werden Logos immer so gross wie möglich, unabhängig davon was
+ * andere Tiers machen.
+ *
+ * @returns {{ w, h, rows, perRow, zoneH, zoneY }}
+ */
+function calcTierLayout(tier) {
+  const pad = settings.logoPadding;
+  const gap = pad;
+  const aspect = settings.logoAspect;
+  const usableW = CANVAS_W - 2 * pad;
+  const { zoneH, zoneY } = calcTierZone(tier);
+
+  const n = sponsors.filter(s => s.tier === tier).length || 1;
+
+  let bestH = -1, bestPerRow = n, bestRows = 1;
+
+  // Teste alle sinnvollen perRow-Werte von 1 bis n.
+  // Ziel: Logohöhe maximieren (Höhe = Mass für "Grösse auf der Plane").
+  // Breite ergibt sich aus der Höhe via Aspektverhältnis — nicht umgekehrt.
+  for (let perRow = 1; perRow <= n; perRow++) {
+    const rows = Math.ceil(n / perRow);
+
+    // Verfügbare Höhe pro Reihe
+    const availH = Math.floor((zoneH - (rows + 1) * gap) / rows);
+    // Verfügbare Breite pro Logo
+    const availW = Math.floor((usableW - (perRow - 1) * gap) / perRow);
+
+    if (availH <= 0 || availW <= 0) continue;
+
+    // Logohöhe: durch Zonenhöhe UND durch Breite/Aspekt begrenzt
+    // (Logo darf nicht breiter sein als die verfügbare Breite)
+    const hFromHeight = availH;
+    const hFromWidth  = Math.floor(availW / aspect);
+    const logoH = Math.min(hFromHeight, hFromWidth);
+
+    if (logoH > bestH) {
+      bestH = logoH;
+      bestPerRow = perRow;
+      bestRows = rows;
+    }
+  }
+
+  const availW = Math.floor((usableW - (bestPerRow - 1) * gap) / bestPerRow);
+  const availH = Math.floor((zoneH - (bestRows + 1) * gap) / bestRows);
+  const h = Math.max(20, Math.min(availH, Math.floor(availW / aspect)));
+  const w = Math.round(h * aspect);
+
+  return { w, h, rows: bestRows, perRow: bestPerRow, zoneH, zoneY };
+}
+
+/**
+ * Setzt w/h aller Sponsoren neu (deterministisch).
+ */
+function calcAllSizes() {
+  const needsLayout = sponsors.some(s => s.x === undefined);
+  ['32gb','16gb','8gb'].forEach(tier => {
+    const layout = calcTierLayout(tier);
+    sponsors.filter(s => s.tier === tier).forEach(sp => {
+      sp.w = layout.w;
+      sp.h = layout.h;
+    });
+  });
+  if (needsLayout) autoLayout();
+}
+
+// ============================================================
+// AUTO LAYOUT
+// Verteilt Logos in Reihen innerhalb ihrer Tier-Zone.
+// ============================================================
+function autoLayout() {
+  const pad = settings.logoPadding;
+  const gap = pad;
+
+  ['32gb','16gb','8gb'].forEach(tier => {
+    const group = sponsors.filter(s => s.tier === tier);
+    if (group.length === 0) return;
+
+    const layout = calcTierLayout(tier);
+    const { rows, perRow, zoneY, zoneH, w, h } = layout;
+
+    // Reihen gleichmässig in der Zone verteilen
+    const totalRowsH = rows * h + (rows - 1) * gap;
+    const yOffset = Math.round((zoneH - totalRowsH) / 2);
+
+    group.forEach((sp, i) => {
+      const row   = Math.floor(i / perRow);
+      const col   = i % perRow;
+
+      // Anzahl Logos in dieser Reihe (letzte Reihe kann weniger haben)
+      const itemsInRow = Math.min(perRow, group.length - row * perRow);
+      const rowTotalW  = itemsInRow * w + (itemsInRow - 1) * gap;
+      const xStart     = Math.round((CANVAS_W - rowTotalW) / 2);
+
+      sp.w = w;
+      sp.h = h;
+      sp.x = xStart + col * (w + gap);
+      sp.y = zoneY + yOffset + row * (h + gap);
+    });
+  });
+  renderCanvas(); renderOverlays(); refreshJSON();
+}
+
+// ============================================================
+// IMAGE LOADING
+// Vereinslogo für Canvas-Hintergrund (nur lokale Dateien, kein CORS)
+// Sponsor-Logos werden als <img>-Tags gerendert, brauchen keinen Cache.
+// ============================================================
+function loadImage(src, cacheKey, onLoad) {
+  if (imgCache[cacheKey]) { onLoad && onLoad(); return; }
+  const img = new Image();
+  // Kein crossOrigin für Vereinslogo – verhindert CORS-Fehler bei lokalen Dateien
+  img.onload = () => { imgCache[cacheKey] = img; onLoad && onLoad(); };
+  img.onerror = () => {};
+  img.src = src;
+}
+
+// ============================================================
+// SVG EXPORT
+// ============================================================
+function buildSVG(forPrint) {
+  const W = CANVAS_W, H = CANVAS_H;
+  // For print: use 400mm x 200mm, 1px = 1mm
+  const unit = forPrint ? 'mm' : 'px';
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- ITDSMI Sponsorenplane | 4m x 2m | Fuer Planendruck -->
+<!-- Farbmodus: CMYK wird vom Druckdienstleister vorausgesetzt. -->
+<!-- Bitte SVG in CMYK konvertieren (z.B. Inkscape > Datei > Druckfarben oder Illustrator CMYK-Export). -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="${W}${unit}" height="${H}${unit}"
+  viewBox="0 0 ${W} ${H}">
+  <title>ITDSMI Sponsorenplane 4m x 2m</title>
+  <desc>Sponsorenplane ITDSMI – Frackmobil &amp; Alumni. Masse: 4000mm x 2000mm. Bitte in CMYK drucken.</desc>
+  <defs>
+    <style>
+      text { font-family: "Courier New", monospace; fill: white; }
+    </style>
+  </defs>
+
+  <!-- Hintergrund -->
+  <rect x="0" y="0" width="${W}" height="${H}" fill="${settings.bg}"/>
+
+  <!-- Streifen oben -->
+  <rect x="0" y="0" width="${W}" height="80" fill="${settings.stripe}"/>
+  <!-- Streifen unten -->
+  <rect x="0" y="${H-80}" width="${W}" height="80" fill="${settings.stripe}"/>
+  <!-- Mittelstreifen -->
+  <rect x="0" y="${H/2-8}" width="${W}" height="16" fill="${settings.stripe2}"/>
+
+  <!-- Vereinsname -->
+  <text x="60" y="${H/2}" font-size="52" font-weight="bold" dominant-baseline="middle">${escXML(settings.vereinName)}</text>
+
+`;
+
+  // Logos: URL direkt als href einbetten (funktioniert für lokale und externe Pfade)
+  // Für Druckproduktion: Logos lokal ablegen, damit Inkscape/Illustrator sie einbetten kann
+  sponsors.forEach(sp => {
+    svg += `  <!-- Sponsor: ${escXML(sp.name)} | Tier: ${sp.tier} -->\n`;
+    if (sp.logo) {
+      svg += `  <image x="${sp.x}" y="${sp.y}" width="${sp.w}" height="${sp.h}" href="${escXML(sp.logo)}" preserveAspectRatio="xMidYMid meet"/>\n`;
+    } else {
+      svg += svgPlaceholder(sp);
+    }
+  });
+
+  svg += `\n  <!-- Grid-Referenz: 1 Einheit = 1mm, 100 Einheiten = 10cm = 1 Dezimeter -->
+</svg>`;
+  return svg;
+}
+
+function svgPlaceholder(sp) {
+  const tierColors = { '32gb': '#8800ff', '16gb': '#4169e1', '8gb': '#48a830' };
+  const col = tierColors[sp.tier] || '#888';
+  return `  <!-- Sponsor: ${escXML(sp.name)} | Tier: ${sp.tier} | Logo: ${escXML(sp.logo || 'kein Pfad')} -->
+  <rect x="${sp.x}" y="${sp.y}" width="${sp.w}" height="${sp.h}" fill="none" stroke="${col}" stroke-width="3" stroke-dasharray="10,5" rx="4"/>
+  <text x="${sp.x + sp.w/2}" y="${sp.y + sp.h/2 - 12}" font-size="18" text-anchor="middle" fill="${col}" dominant-baseline="middle">${escXML(sp.name)}</text>
+  <text x="${sp.x + sp.w/2}" y="${sp.y + sp.h/2 + 14}" font-size="14" text-anchor="middle" fill="#aaa" dominant-baseline="middle">${sp.tier.toUpperCase()}</text>\n`;
+}
+
+function escXML(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function exportSVG() {
+  const svg = buildSVG(true);
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  showExportModal(
+    `<b>SVG Export</b> (400 × 200 mm, 1px = 1mm)<br><br>
+    ⚠ <b>CMYK-Hinweis:</b> Das SVG ist in RGB. Für den Planendruck bitte in Inkscape oder Illustrator in CMYK konvertieren.<br><br>
+    Logos werden als Base64 eingebettet (sofern geladen). Platzhalter für nicht geladene Logos sind als gestrichelte Rechtecke dargestellt.`,
+    () => {
+      const a = document.createElement('a'); a.href = url;
+      a.download = 'sponsorenplane.svg'; a.click();
+    }
+  );
+}
+
+function exportPDF() {
+  // We use print + SVG embed approach: open SVG in new window, trigger print
+  const svg = buildSVG(true);
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  showExportModal(
+    `<b>PDF Export</b><br><br>
+    Der SVG wird in einem neuen Tab geöffnet. Dort kann über <b>Drucken → Als PDF speichern</b> ein PDF erzeugt werden.<br><br>
+    ⚠ <b>CMYK-Hinweis:</b> Browser-PDFs sind RGB. Für druckfertiges CMYK-PDF bitte das SVG in <b>Inkscape</b> oder <b>Adobe Illustrator</b> öffnen und als CMYK-PDF exportieren.<br><br>
+    Für professionellen Druck: SVG an Druckdienstleister senden, der konvertiert.`,
+    () => {
+      const win = window.open('', '_blank');
+      win.document.write(`<!DOCTYPE html><html><head><title>Sponsorenplane – ITDSMI</title>
+        <style>body{margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+        img{max-width:100%;height:auto;display:block;}</style></head>
+        <body><img src="${url}" alt="Sponsorenplane"></body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 800);
+    }
+  );
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+let _exportCb = null;
+function showExportModal(msg, cb) {
+  _exportCb = cb;
+  document.getElementById('export-msg').innerHTML = msg;
+  document.getElementById('export-dl-btn').textContent = 'Download / Öffnen';
+  document.getElementById('export-modal').classList.add('open');
+  document.getElementById('export-dl-btn').onclick = () => { closeModal(); cb(); };
+}
+function closeModal() {
+  document.getElementById('export-modal').classList.remove('open');
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'json') refreshJSON();
+  if (name === 'settings') updateSizePreview();
+}
+</script>
+</body>
+</html>
