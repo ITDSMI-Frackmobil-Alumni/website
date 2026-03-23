@@ -28,11 +28,10 @@ Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ri
 
 ## Adding a blog entry
 
-1. Create the folder and a `date` file:
+1. Create the entry folder with `metadata.json`:
    ```
    blog/frackwoche-2026/
-     date          ← plain text, e.g. "Sept. 2026"
-     index.html    ← copy from an existing entry, keep the <!-- MARKER --> comments
+     metadata.json  ← entry metadata (title, date, intro text)
      images/
        IMG_001.jpg
        IMG_002.jpg
@@ -41,14 +40,24 @@ Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ri
        step2/IMG_001.jpg
    ```
 
+   The `metadata.json` file should contain:
+   ```json
+   {
+     "title": "Frackwoche 2026",
+     "date": "September 2026",
+     "intro": "Eindrücke und Fotos vom Frackwoche 2026."
+   }
+   ```
+
 2. Run the build script from the repo root:
    ```bash
    node blog/generate-manifest.js
    ```
    This will:
+   - Generate `index.html` from the template with your metadata
    - Scan `images/` and write `images/manifest.json`
    - Update `blog/blog-index.json`
-   - Inject the shared header/footer/sidebar into the entry's `index.html`
+   - Inject the shared header/footer/sidebar
    - Update the blog list in the root `index.html`
 
 3. Commit and push to `main` — GitHub Actions will deploy automatically.
@@ -68,11 +77,12 @@ Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ri
 │   ├── footer.html
 │   └── sidebar-blog.html
 └── blog/
+    ├── template.html         # Template for generating blog entry pages
     ├── generate-manifest.js  # Build script
     ├── blog-index.json        # Auto-generated entry list
     └── frackwoche-2025/
-        ├── index.html
-        ├── date
+        ├── metadata.json      # Entry metadata (title, date, intro)
+        ├── index.html         # Auto-generated from template
         └── images/
             ├── manifest.json  # Auto-generated image manifest
             └── *.jpg

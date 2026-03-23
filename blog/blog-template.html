@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITDSMI - Frackumzug 2025</title>
-    <meta name="description" content="Frackumzug 2025 – Fotos und Eindrücke vom ITDSMI Frackmobil &amp; Alumni Verein.">
-    <link rel="stylesheet" href="../../style.css">
+    <title>ITDSMI - {{TITLE}}</title>
+    <meta name="description" content="{{TITLE}} – Fotos und Eindrücke vom ITDSMI Frackmobil &amp; Alumni Verein.">
+    <link rel="stylesheet" href="{{ROOT}}style.css">
     <style>
         html { scroll-behavior: smooth; }
         .gallery-section { margin-bottom: 3em; }
@@ -98,75 +98,27 @@
 
 <body>
     <!-- HEADER_START -->
-        <div class="header">
-        <div class="logo-container">
-            <a href="../../index.html">
-                <img class="logo" src="../../logo-dunkel.jpg" alt="ITDSMI Logo">
-            </a>
-        </div>
-        <div class="subtitle">Frackmobil &amp; Alumni</div>
-        <p class="tagline">Alumni-Netzwerk der ZHAW Informatik-Studiengänge</p>
-    </div>
-
-    <div class="color-bar">
-        <div class="color-it"></div>
-        <div class="color-ds"></div>
-        <div class="color-mi"></div>
-    </div>
-
+    {{HEADER}}
     <!-- HEADER_END -->
 
     <div class="main-layout">
         <!-- SIDEBAR_START -->
-                <button class="mobile-menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open');document.querySelector('.sidebar-backdrop').classList.toggle('active')" aria-label="Menü">&#9776;</button>
-        <div class="sidebar-backdrop" onclick="document.querySelector('.sidebar').classList.remove('open');this.classList.remove('active')"></div>
-        <aside class="sidebar">
-            <nav class="sidebar-nav">
-                <h3>Navigation</h3>
-                <ul>
-                    <li><a href="../../index.html">Startseite</a></li>
-                </ul>
-            </nav>
-
-            <nav class="sidebar-nav">
-                <h3>Inhalt</h3>
-                <ul id="sidebar-toc">
-                    <li><a href="#intro">Überblick</a></li>
-                    <li><a href="#galerie">Galerie</a></li>
-                </ul>
-            </nav>
-
-            <div class="sidebar-section">
-                <h3>Eindrücke</h3>
-                <div class="blog-list">
-                    <!-- BLOG_LIST_START -->
-                <a href="../../blog/frackumzug-2025/" class="blog-preview active">
-                    <span class="blog-date">Juli 2025</span>
-                    <span class="blog-title">Frackumzug 2025</span>
-                </a>
-                <a href="../../blog/frackumzug-2024/" class="blog-preview">
-                    <span class="blog-date">Juli 2024</span>
-                    <span class="blog-title">Frackumzug 2024</span>
-                </a>
-                    <!-- BLOG_LIST_END -->
-                </div>
-            </div>
-        </aside>
+        {{SIDEBAR}}
         <!-- SIDEBAR_END -->
 
         <div class="content">
             <article class="blog-article">
                 <header class="article-header">
-                    <a href="../../index.html" class="back-link">&larr; Zurück zur Startseite</a>
-                    <h1>Frackumzug 2025</h1>
+                    <a href="{{ROOT}}index.html" class="back-link">&larr; Zurück zur Startseite</a>
+                    <h1>{{TITLE}}</h1>
                     <div class="article-meta">
-                        <span class="article-date">Juli 2025</span>
+                        <span class="article-date">{{DATE}}</span>
                         <span class="article-author">ITDSMI Vorstand</span>
                     </div>
                 </header>
 
                 <div class="article-content">
-                    <p id="intro">Eindrücke und Fotos vom Frackumzug 2025.</p>
+                    <p id="intro">{{INTRO}}</p>
 
                     <h2 id="galerie">Galerie</h2>
                     <div id="gallery-root">
@@ -188,24 +140,7 @@
     </div>
 
     <!-- FOOTER_START -->
-        <div class="color-bar">
-        <div class="color-it"></div>
-        <div class="color-ds"></div>
-        <div class="color-mi"></div>
-    </div>
-
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-main">
-                <p><strong>ITDSMI – Frackmobil &amp; Alumni</strong></p>
-                <p>Verein gemäss ZGB Art. 60 ff. | Sitz in Winterthur</p>
-            </div>
-            <div class="footer-contact">
-                <p>Kontakt: <a href="mailto:vorstand@itdsmi.ch">vorstand@itdsmi.ch</a></p>
-            </div>
-        </div>
-    </div>
-
+    {{FOOTER}}
     <!-- FOOTER_END -->
 
     <script>

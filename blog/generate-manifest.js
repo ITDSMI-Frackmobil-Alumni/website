@@ -21,6 +21,7 @@ const BLOG_DIR   = __dirname;
 const SITE_ROOT  = path.join(BLOG_DIR, '..');
 const INDEX_HTML = path.join(SITE_ROOT, 'index.html');
 const PARTIALS   = path.join(SITE_ROOT, '_partials');
+const TEMPLATE   = path.join(BLOG_DIR, 'blog-template.html');
 
 const IMG_EXTS = new Set(['.jpg', '.jpeg', '.png']);
 
@@ -52,6 +53,62 @@ function inject(content, marker, replacement) {
   return content.replace(re,
     `<!-- ${marker}_START -->\n${replacement}\n                    <!-- ${marker}_END -->`
   );
+}
+
+/** Generate index.html from template + metadata, with partials injected */
+function generateIndexHtmlFrom(entryDir, blogEntries) {
+  const htmlPath = path.join(entryDir, 'index.html');
+  const metaPath = path.join(entryDir, 'metadata.json');
+  
+  if (!fs.existsSync(TEMPLATE)) {
+    console.warn(`  Template not found: ${TEMPLATE}`);
+    return;
+  }
+  if (!fs.existsSync(metaPath)) {
+    console.warn(`  Metadata not found for ${path.basename(entryDir)}`);
+    return;
+  }
+
+  // Load metadata
+  const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+  
+  // Calculate root path
+  const dirName = path.basename(entryDir);
+  const depth = path.relative(SITE_ROOT, entryDir).split(path.sep).length;
+  const root = '../'.repeat(depth);
+
+  // Load template and substitute placeholders
+  let content = fs.readFileSync(TEMPLATE, 'utf8');
+  content = content.replace(/{{TITLE}}/g, meta.title);
+  content = content.replace(/{{DATE}}/g, meta.date);
+  content = content.replace(/{{INTRO}}/g, meta.intro);
+  content = content.replace(/{{ROOT}}/g, root);
+  
+  // Inject partials
+  const applyRoot = s => s.replace(/\{\{ROOT\}\}/g, root);
+
+  // Header
+  content = content.replace(/{{HEADER}}/g, applyRoot(readPartial('header.html')));
+
+  // Footer
+  content = content.replace(/{{FOOTER}}/g, applyRoot(readPartial('footer.html')));
+
+  // Sidebar (with blog list injected inside it)
+  let sidebar = applyRoot(readPartial('sidebar-blog.html'));
+  const blogListHtml = blogEntries.map(e => {
+    const isActive = e.dir === dirName ? ' active' : '';
+    return (
+      `                <a href="${root}blog/${e.dir}/" class="blog-preview${isActive}">\n` +
+      `                    <span class="blog-date">${e.date}</span>\n` +
+      `                    <span class="blog-title">${e.title}</span>\n` +
+      `                </a>`
+    );
+  }).join('\n');
+  sidebar = inject(sidebar, 'BLOG_LIST', blogListHtml);
+  content = content.replace(/{{SIDEBAR}}/g, sidebar.trimEnd());
+
+  fs.writeFileSync(htmlPath, content);
+  console.log(`  generated → ${path.relative(SITE_ROOT, htmlPath)}`);
 }
 
 // ── 1. Image manifest ─────────────────────────────────────────────────────────
@@ -95,6 +152,12 @@ function buildBlogEntries() {
     .filter(d => d.isDirectory())
     .sort((a, b) => b.name.localeCompare(a.name))
     .map(d => {
+      const metaPath = path.join(BLOG_DIR, d.name, 'metadata.json');
+      if (fs.existsSync(metaPath)) {
+        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+        return { dir: d.name, title: meta.title, date: meta.date };
+      }
+      // Fallback for entries without metadata
       const datePath = path.join(BLOG_DIR, d.name, 'date');
       const date = fs.existsSync(datePath) ? fs.readFileSync(datePath, 'utf8').trim() : '';
       return { dir: d.name, title: prettyName(d.name), date };
@@ -109,40 +172,7 @@ function generateBlogIndex(entries) {
 
 // ── 3. Inject partials into blog entry index.html ─────────────────────────────
 function injectPartialsInto(entryDir, blogEntries) {
-  const htmlPath = path.join(entryDir, 'index.html');
-  if (!fs.existsSync(htmlPath)) return;
-
-  const dirName = path.basename(entryDir);
-  // Root relative to this entry: blog/frackwoche-2025/ → ../../
-  const depth   = path.relative(SITE_ROOT, entryDir).split(path.sep).length;
-  const root    = '../'.repeat(depth);
-
-  const applyRoot = s => s.replace(/\{\{ROOT\}\}/g, root);
-
-  let content = fs.readFileSync(htmlPath, 'utf8');
-
-  // Header
-  content = inject(content, 'HEADER', applyRoot(readPartial('header.html')));
-
-  // Footer
-  content = inject(content, 'FOOTER', applyRoot(readPartial('footer.html')));
-
-  // Sidebar (with blog list injected inside it)
-  let sidebar = applyRoot(readPartial('sidebar-blog.html'));
-  const blogListHtml = blogEntries.map(e => {
-    const isActive = e.dir === dirName ? ' active' : '';
-    return (
-      `                <a href="${root}blog/${e.dir}/" class="blog-preview${isActive}">\n` +
-      `                    <span class="blog-date">${e.date}</span>\n` +
-      `                    <span class="blog-title">${e.title}</span>\n` +
-      `                </a>`
-    );
-  }).join('\n');
-  sidebar = inject(sidebar, 'BLOG_LIST', blogListHtml);
-  content = inject(content, 'SIDEBAR', sidebar.trimEnd());
-
-  fs.writeFileSync(htmlPath, content);
-  console.log(`  partials injected → ${path.relative(SITE_ROOT, htmlPath)}`);
+  generateIndexHtmlFrom(entryDir, blogEntries);
 }
 
 // ── 4. Inject blog list into root index.html ──────────────────────────────────
