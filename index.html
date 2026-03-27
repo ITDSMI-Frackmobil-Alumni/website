@@ -47,6 +47,7 @@
                             <li><a href="#pakete">Pakete</a></li>
                             <li><a href="#kontakt">Kontakt</a></li>
                         </ul>
+                    <li><a href="#spenden">Spenden</a></li>
                     </li>
                 </ul>
             </nav>
@@ -55,14 +56,14 @@
                 <h3>Eindrücke</h3>
                 <div class="blog-list">
                     <!-- BLOG_LIST_START -->
-                <a href="blog/frackumzug-2025/" class="blog-preview">
-                    <span class="blog-date">Juli 2025</span>
-                    <span class="blog-title">Frackumzug 2025</span>
-                </a>
-                <a href="blog/frackumzug-2024/" class="blog-preview">
-                    <span class="blog-date">Juli 2024</span>
-                    <span class="blog-title">Frackumzug 2024</span>
-                </a>
+                    <a href="blog/frackumzug-2025/" class="blog-preview">
+                        <span class="blog-date">Juli 2025</span>
+                        <span class="blog-title">Frackumzug 2025</span>
+                    </a>
+                    <a href="blog/frackumzug-2024/" class="blog-preview">
+                        <span class="blog-date">Juli 2024</span>
+                        <span class="blog-title">Frackumzug 2024</span>
+                    </a>
                     <!-- BLOG_LIST_END -->
                 </div>
             </div>
@@ -248,7 +249,9 @@
                         <div class="podium-base"></div>
                     </div>
                 </div>
-                <div class="price-note">* Preis basiert auf dem aktuellen Marktpreis von <a href="https://www.digitec.ch/de/s1/product/corsair-vengeance-rgb-ddr5-5200mts-8gb-1-x-8gb-5200-mhz-ddr5-ram-u-dimm-ram-65322702" target="_blank" rel="noopener">8 GB DDR5 RAM</a> (Digitec)</div>
+                <div class="price-note">* Preis basiert auf dem aktuellen Marktpreis von <a
+                        href="https://www.digitec.ch/de/s1/product/corsair-vengeance-rgb-ddr5-5200mts-8gb-1-x-8gb-5200-mhz-ddr5-ram-u-dimm-ram-65322702"
+                        target="_blank" rel="noopener">8 GB DDR5 RAM</a> (Digitec)</div>
             </div>
 
             <div class="section cta-section" id="kontakt">
@@ -259,6 +262,27 @@
                     </p>
                     <a href="mailto:sponsoring@itdsmi.ch" class="cta-button">Kontakt aufnehmen</a>
                     <p class="cta-email">sponsoring@itdsmi.ch</p>
+                </div>
+            </div>
+            <div class="section cta-section" id="kontakt">
+                <div class="cta-box" id="spenden">
+                    <h2>Spenden</h2>
+                    <p>
+                        Unterstützen Sie unsere Vereinsarbeit mit einer Spende. Jeder Beitrag hilft, unsere Community zu
+                        stärken und die Traditionen der ZHAW-Informatik-Studiengänge lebendig zu halten.
+                    </p>
+                    <div id="rnw-paylink-button-krwvf" class="twint-button"></div>
+                    <script type="module">
+                        import { TwintButton } from "https://unpkg.com/@raisenow/paylink-button@2/dist/TwintButton.js"
+                        TwintButton.render("#rnw-paylink-button-krwvf", {
+                            "solution-id": "krwvf",
+                            "solution-type": "donate",
+                            "language": "de",
+                            "size": "large",
+                            "width": "fixed",
+                            "color-scheme": "light",
+                        })
+                    </script>
                 </div>
             </div>
         </div>
