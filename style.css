@@ -390,6 +390,16 @@ h4 {
   color: var(--text-muted);
 }
 
+.sponsor-logo-card.light,
+.sponsor-logo-link.light {
+  background: #fff;
+}
+
+.sponsor-logo-card.light .sponsor-logo-title,
+.sponsor-logo-link.light .sponsor-logo-title {
+  color: #000;
+}
+
 .sponsor-logo-card img {
   display: block;
   max-width: 180px;
