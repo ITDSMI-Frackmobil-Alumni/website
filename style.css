@@ -321,6 +321,121 @@ h4 {
   color: var(--text-muted);
 }
 
+/* Sponsor Logos */
+.sponsor-logos-section {
+  overflow: hidden;
+}
+
+.sponsor-carousel {
+  position: relative;
+  overflow: hidden;
+  margin-top: 1.5em;
+  padding: 0.5em 0;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.sponsor-carousel::before,
+.sponsor-carousel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 5rem;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sponsor-carousel::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--background) 0%, transparent 100%);
+}
+
+.sponsor-carousel::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--background) 0%, transparent 100%);
+}
+
+.sponsor-carousel-track {
+  display: flex;
+  width: max-content;
+  gap: 1em;
+}
+
+.sponsor-carousel-track.is-animated {
+  animation: sponsor-scroll 24s linear infinite;
+}
+
+.sponsor-carousel-track.is-centered {
+  width: 100%;
+  justify-content: center;
+}
+
+.sponsor-carousel:hover .sponsor-carousel-track.is-animated {
+  animation-play-state: paused;
+}
+
+.sponsor-logo-card {
+  min-width: 180px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75em;
+  padding: 1.2em;
+  background: var(--background);
+  border: 1px solid #333;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.sponsor-logo-card img {
+  display: block;
+  max-width: 180px;
+  max-height: 64px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.sponsor-logo-link {
+  color: inherit;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sponsor-logo-link:hover {
+  color: inherit;
+  border-color: var(--primary-1);
+  transform: translateY(-2px);
+}
+
+.sponsor-logo-title {
+  font-size: 0.9em;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.sponsor-logos-note {
+  margin-top: 1em;
+  font-size: 0.9em;
+  color: var(--text-muted);
+}
+
+@keyframes sponsor-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.5em));
+  }
+}
+
 /* Packages Podium */
 .packages-podium {
   display: grid;
@@ -599,6 +714,16 @@ h4 {
   .packages-podium {
     grid-template-columns: 1fr;
     gap: 1.5em;
+  }
+
+  .sponsor-carousel::before,
+  .sponsor-carousel::after {
+    width: 2rem;
+  }
+
+  .sponsor-logo-card {
+    min-width: 150px;
+    min-height: 80px;
   }
 
   .podium-32gb,

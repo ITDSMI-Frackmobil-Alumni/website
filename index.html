@@ -44,6 +44,7 @@
                     <li><a href="#frackumzug">Frackumzug</a></li>
                     <li><a href="#sponsoring">Sponsoring</a>
                         <ul class="nav-subitems">
+                            <li><a href="#sponsoren">Sponsoren</a></li>
                             <li><a href="#pakete">Pakete</a></li>
                             <li><a href="#kontakt">Kontakt</a></li>
                         </ul>
@@ -202,6 +203,25 @@
                 </div>
             </div>
 
+            <div class="section sponsor-logos-section" id="sponsoren">
+                <h2>Unsere Sponsoren</h2>
+                <p>
+                    Wir danken unseren Sponsoren herzlich für ihre Unterstützung. Mit ihrem Beitrag helfen sie mit,
+                    unsere Community, den Frackumzug und die Traditionen rund um die ZHAW-Informatik lebendig zu
+                    halten.
+                </p>
+
+                <div class="sponsor-carousel" aria-label="Sponsorenlogos">
+                    <div class="sponsor-carousel-track">
+                        <a class="sponsor-logo-card sponsor-logo-link" href="https://www.smoca.ch/" target="_blank"
+                            rel="noopener noreferrer" aria-label="SMOCA Website öffnen">
+                            <img src="static/logos/png/smoca_logo-transparent.png" alt="SMOCA" loading="lazy">
+                            <span class="sponsor-logo-title">SMOCA</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="section" id="pakete">
                 <h2>Sponsoring-Pakete</h2>
                 <p>Je mehr RAM, desto mehr Präsenz auf unserer Sponsorenplane am Frackmobil:</p>
@@ -312,6 +332,22 @@
                 document.querySelector('.sidebar-backdrop').classList.remove('active');
             });
         });
+
+        function updateSponsorCarousel() {
+            document.querySelectorAll('.sponsor-carousel').forEach(function (carousel) {
+                var track = carousel.querySelector('.sponsor-carousel-track');
+                if (!track) return;
+
+                track.classList.remove('is-animated');
+                track.classList.remove('is-centered');
+                var shouldAnimate = track.scrollWidth > carousel.clientWidth + 1;
+                track.classList.toggle('is-animated', shouldAnimate);
+                track.classList.toggle('is-centered', !shouldAnimate);
+            });
+        }
+
+        window.addEventListener('load', updateSponsorCarousel);
+        window.addEventListener('resize', updateSponsorCarousel);
 
     </script>
 </body>
